@@ -4,17 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainActivity">
+    android:background="@color/colorPrimary"
+    tools:context=".ui.splash.SplashActivity">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="@dimen/_150sdp"
+        android:src="@drawable/luas_logo"
+        android:background="@color/colorWhite"
+        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
-
+        android:contentDescription="@string/cd_logo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
