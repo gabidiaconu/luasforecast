@@ -4,8 +4,8 @@
 
     <!--Content descriptors -->
     <string name="cd_logo">LUAS logo text</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cd_tram_icon">Tram Icon</string>
+
     <string name="destination_label">Destination:</string>
     <string name="due_mins_label">Due mins:</string>
     <string name="tram_leavis_in_mins_label">Tram leavis in (mins):  </string>
@@ -15,6 +15,12 @@
     <string name="cd_custom_refresh_button">Custom refresh button content descriptor</string>
     <string name="no_internet_warn">No internet connection! Please connect to the internet and press refresh</string>
     <string name="warn_problems_getting_location">We had problems getting your current location. Please check the permisions!</string>
+    <string name="warn_service_permissions_required">Service Permissions are required for this app</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancel</string>
+    <string name="warn_some_permissions_not_granted">Some permissions are not granted ask again</string>
+    <string name="info_location_permissions_granted">location services permission granted</string>
+    <string name="info_permission_callback_called">Permission callback called-------</string>
 
 
 </resources>

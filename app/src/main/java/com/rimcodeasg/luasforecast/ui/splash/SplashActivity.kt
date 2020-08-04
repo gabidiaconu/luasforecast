@@ -21,7 +21,7 @@ class SplashActivity : AppCompatActivity() {
 
     companion object{
         const val SPLASH_TIME_OUT = 2000L
-        private const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
+        const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         const val TAG = "SplashActivity - TAG: "
     }
 
@@ -31,9 +31,9 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        if (checkAndRequestPermissions()) {
-            activityScope.launch {
-                delay(SPLASH_TIME_OUT)
+        activityScope.launch {
+            delay(SPLASH_TIME_OUT)
+            if(checkAndRequestPermissions()) {
                 startMainActivity()
             }
         }
@@ -73,7 +73,7 @@ class SplashActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
 
-        Log.d(TAG, "Permission callback called-------")
+        Log.d(TAG, getString(R.string.info_permission_callback_called))
 
         when (requestCode) {
             REQUEST_ID_MULTIPLE_PERMISSIONS -> {
@@ -89,20 +89,15 @@ class SplashActivity : AppCompatActivity() {
                     // Check for both permissions
                     if (perms[Manifest.permission.ACCESS_FINE_LOCATION] == PackageManager.PERMISSION_GRANTED
                         && perms[Manifest.permission.ACCESS_COARSE_LOCATION] == PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "location services permission granted")
-
-                        val i = Intent(this@SplashActivity, MainActivity::class.java)
-                        startActivity(i)
-                        finish()
+                        Log.d(TAG, getString(R.string.info_location_permissions_granted))
+                        startMainActivity()
                     } else {
-                        Log.d(TAG, "Some permissions are not granted ask again ")
+                        Log.d(TAG, getString(R.string.warn_some_permissions_not_granted))
                         //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
                         //                        // shouldShowRequestPermissionRationale will return true
                         //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)
-                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
+                        if ( ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                             showDialogOK(DialogInterface.OnClickListener { _, which ->
                                 when (which) {
                                     DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
@@ -119,9 +114,9 @@ class SplashActivity : AppCompatActivity() {
 
     private fun showDialogOK(okListener: DialogInterface.OnClickListener) {
         AlertDialog.Builder(this)
-            .setMessage("Service Permissions are required for this app")
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel", okListener)
+            .setMessage(getString(R.string.warn_service_permissions_required))
+            .setPositiveButton(getString(R.string.label_ok), okListener)
+            .setNegativeButton(getString(R.string.label_cancel), okListener)
             .create()
             .show()
     }

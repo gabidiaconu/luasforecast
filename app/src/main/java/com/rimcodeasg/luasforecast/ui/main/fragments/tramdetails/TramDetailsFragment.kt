@@ -1,17 +1,21 @@
 package com.rimcodeasg.luasforecast.ui.main.fragments.tramdetails
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -22,6 +26,7 @@ import com.rimcodeasg.luasforecast.common.TimeUtilsObj
 import com.rimcodeasg.luasforecast.data.models.Tram
 import com.rimcodeasg.luasforecast.databinding.TramDetailsFragmentBinding
 import com.rimcodeasg.luasforecast.di.kodeinViewModel
+import com.rimcodeasg.luasforecast.ui.splash.SplashActivity
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.kodein
 
@@ -32,8 +37,17 @@ class TramDetailsFragment : Fragment(), KodeinAware {
 
         private const val TRAM_ENTITY : String = "tram_entity"
         private const val BASE_MAPS_URI = "http://maps.google.com/maps?daddr="
+
+        /*
+        * LatLong of the Marlborough Tram Station
+        * */
         val marlboroughStationLatLng = LatLng(53.349382, -6.257707)
+
+        /*
+        * LatLong of the Stillorgan Tram Station
+        * */
         val stillorganStationLatLng = LatLng(53.279371, -6.210185)
+
 
         fun newInstance(tram : Tram) : TramDetailsFragment {
             val args = Bundle()
@@ -73,12 +87,16 @@ class TramDetailsFragment : Fragment(), KodeinAware {
         binding.lateLottieAnimationView.playAnimation()
         binding.okLottieAnimationView.playAnimation()
 
+        /*
+        * Opening location with google maps
+        * so the user can see how far he actually is
+        * from the tram station
+        * */
         binding.goToGoogleMapsButton.setOnClickListener {
-            val uriString: String
-            if (TimeUtilsObj.isFirstHalfOfTheDay()){
-                uriString = marlboroughStationLatLng.latitude.toString() + "," + marlboroughStationLatLng.longitude
+            val uriString: String = if (TimeUtilsObj.isFirstHalfOfTheDay()){
+                marlboroughStationLatLng.latitude.toString() + "," + marlboroughStationLatLng.longitude
             } else {
-                uriString = stillorganStationLatLng.latitude.toString() + "," + stillorganStationLatLng.longitude
+                stillorganStationLatLng.latitude.toString() + "," + stillorganStationLatLng.longitude
             }
             val intent = Intent(
                 Intent.ACTION_VIEW,
@@ -104,11 +122,13 @@ class TramDetailsFragment : Fragment(), KodeinAware {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
+            requestPermissions(
+                activity!!, arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
+                SplashActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
+            )
             return
         } else {
             fusedLocationClient.lastLocation
@@ -123,6 +143,65 @@ class TramDetailsFragment : Fragment(), KodeinAware {
                     }
                 }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        Log.d(SplashActivity.TAG, getString(R.string.info_permission_callback_called))
+
+        when (requestCode) {
+            SplashActivity.REQUEST_ID_MULTIPLE_PERMISSIONS -> {
+
+                val perms = HashMap<String, Int>()
+                // Initialize the map with both permissions
+                perms[Manifest.permission.ACCESS_FINE_LOCATION] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.ACCESS_COARSE_LOCATION] = PackageManager.PERMISSION_GRANTED
+                // Fill with actual results from user
+                if (grantResults.isNotEmpty()) {
+                    for (i in permissions.indices)
+                        perms[permissions[i]] = grantResults[i]
+                    // Check for both permissions
+                    if (perms[Manifest.permission.ACCESS_FINE_LOCATION] == PackageManager.PERMISSION_GRANTED
+                        && perms[Manifest.permission.ACCESS_COARSE_LOCATION] == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(SplashActivity.TAG, getString(R.string.info_location_permissions_granted))
+                    } else {
+                        Log.d(SplashActivity.TAG, getString(R.string.warn_some_permissions_not_granted))
+                        //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
+                        //                        // shouldShowRequestPermissionRationale will return true
+                        //show the dialog or snackbar saying its necessary and try again otherwise proceed with setup.
+                        if ( ActivityCompat.shouldShowRequestPermissionRationale(activity as AppCompatActivity, Manifest.permission.ACCESS_FINE_LOCATION)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(activity as AppCompatActivity, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                            showDialogOK(DialogInterface.OnClickListener { _, which ->
+                                when (which) {
+                                    DialogInterface.BUTTON_POSITIVE -> {
+                                        requestPermissions(
+                                            activity!!, arrayOf(
+                                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                Manifest.permission.ACCESS_FINE_LOCATION
+                                            ),
+                                            SplashActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
+                                        )
+                                    }
+                                    DialogInterface.BUTTON_NEGATIVE -> activity!!.finish()
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showDialogOK(okListener: DialogInterface.OnClickListener) {
+        AlertDialog.Builder(activity as AppCompatActivity)
+            .setMessage(getString(R.string.warn_service_permissions_required))
+            .setPositiveButton(getString(R.string.label_ok), okListener)
+            .setNegativeButton(getString(R.string.label_cancel), okListener)
+            .create()
+            .show()
     }
 
 }

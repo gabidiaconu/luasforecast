@@ -1,6 +1,5 @@
 package com.rimcodeasg.luasforecast.di
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,10 +11,6 @@ import org.kodein.di.generic.instance
 
 inline fun <reified T : ViewModel> Kodein.Builder.bindViewModel(overrides: Boolean? = null): Kodein.Builder.TypeBinder<T> {
     return bind<T>(T::class.java.simpleName, overrides)
-}
-
-inline fun <reified VM : ViewModel, T> T.kodeinViewModel(): Lazy<VM> where T : KodeinAware, T : AppCompatActivity {
-    return lazy { ViewModelProvider(this, direct.instance()).get(VM::class.java) }
 }
 
 inline fun <reified VM : ViewModel, T> T.kodeinViewModel(): Lazy<VM> where T : KodeinAware, T : Fragment {

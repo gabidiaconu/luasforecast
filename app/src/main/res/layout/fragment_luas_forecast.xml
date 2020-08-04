@@ -29,11 +29,12 @@
             android:textSize="@dimen/_16sdp"
             android:textAlignment="center"
             android:textStyle="bold"
+            android:maxLines="3"
             android:textColor="@color/colorPrimary"
-            android:text="@{luasForecastViewModel.msg}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:setHeaderMsg="@{luasForecastViewModel.msg}"/>
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/loading_animation"
@@ -46,6 +47,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bound_title_text_view"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:setVisibilityState="@{luasForecastViewModel.forecastVisibilityCase}"
             />
 
         <com.airbnb.lottie.LottieAnimationView
@@ -59,6 +61,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bound_title_text_view"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:setVisibilityState="@{luasForecastViewModel.forecastVisibilityCase}"
             />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +74,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:setAdapter="@{tramListAdapter}"/>
+            app:setRvAdapter="@{tramListAdapter}"
+            app:setRecyclerViewVisibilityCase="@{luasForecastViewModel.forecastVisibilityCase}"/>
 
 
         <ImageButton

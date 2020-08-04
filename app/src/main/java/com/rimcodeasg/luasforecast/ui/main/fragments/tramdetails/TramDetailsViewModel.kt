@@ -19,9 +19,9 @@ class TramDetailsViewModel : ViewModel() {
     val distanceToTramStation : String
         get() = BigDecimal.valueOf(_distanceToTramStation.toDouble()).setScale(2, RoundingMode.HALF_UP).toPlainString()
 
-    private var _differenceInMinues : Double = -1.0
+    private var _differenceInMinutes : Double = -1.0
     val differenceInMinutes : String
-        get() = _differenceInMinues.toString()
+        get() = _differenceInMinutes.toString()
 
     fun calculateDistanceBetweenCurrentLocationAndTramStation(location: Location){
 
@@ -29,13 +29,13 @@ class TramDetailsViewModel : ViewModel() {
 
         if (TimeUtilsObj.isFirstHalfOfTheDay()){
             _distanceToTramStation = SphericalUtil.computeDistanceBetween(currentLatLng, marlboroughStationLatLng).toString()
-            _differenceInMinues = calculateDifferenceInMinutesFromCurrentLocationToStation()
+            _differenceInMinutes = calculateDifferenceInMinutesFromCurrentLocationToStation()
         } else {
             _distanceToTramStation = SphericalUtil.computeDistanceBetween(currentLatLng, stillorganStationLatLng).toString()
         }
     }
 
-    fun calculateDifferenceInMinutesFromCurrentLocationToStation() : Double{
+    private fun calculateDifferenceInMinutesFromCurrentLocationToStation() : Double{
         val distance = _distanceToTramStation.toDouble()
         val minutesToStation = BigDecimal.valueOf(distance / 1.3).setScale(2, RoundingMode.HALF_UP).toDouble()
         return selectedTram.dueMins.toDouble() - minutesToStation

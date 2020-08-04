@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rimcodeasg.luasforecast.data.models.Tram
 import com.rimcodeasg.luasforecast.databinding.TramRvItemBinding
 
-class TramListAdapter(val recyclerViewItemClickListener: IRecyclerViewItemClickListener) : ListAdapter<Tram, TramListAdapter.TramViewHolder>(
+class TramListAdapter(private val recyclerViewItemClickListener: IRecyclerViewItemClickListener) : ListAdapter<Tram, TramListAdapter.TramViewHolder>(
     Companion
 ) {
 

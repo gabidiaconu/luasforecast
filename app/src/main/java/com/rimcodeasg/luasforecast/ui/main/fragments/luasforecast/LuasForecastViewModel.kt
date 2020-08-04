@@ -1,45 +1,74 @@
 package com.rimcodeasg.luasforecast.ui.main.fragments.luasforecast
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
-import com.rimcodeasg.luasforecast.common.SealedResources
-import com.rimcodeasg.luasforecast.common.TimeUtilsObj
+import androidx.lifecycle.*
+import com.rimcodeasg.luasforecast.common.*
 import com.rimcodeasg.luasforecast.data.models.StopInfo
 import com.rimcodeasg.luasforecast.data.repositories.LuasForecastRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
-import java.lang.Exception
 
 class LuasForecastViewModel (
     private val repository: LuasForecastRepository
 ) : ViewModel() {
 
-    var msg : String = "Loading"
 
-    @ExperimentalCoroutinesApi
-    @InternalCoroutinesApi
-    val luasForecastResponse : LiveData<SealedResources<StopInfo>> = liveData(Dispatchers.IO){
+    private val _msg = MutableLiveData<String>()
+    val msg : LiveData<String>
+        get() = _msg
 
-        try {
+    private val _forecastVisibilityCase = MutableLiveData<ForecastResulVisibilityCase>()
+    val forecastVisibilityCase: LiveData<ForecastResulVisibilityCase>
+        get() = _forecastVisibilityCase
 
-            if (TimeUtilsObj.isFirstHalfOfTheDay()){
-                repository.getLuasForecastMarlborough().collect {
-                    emit(it)
+    private val loadTrigger = MutableLiveData(Unit)
+
+    val forecastResponse : LiveData<SealedResources<StopInfo>> = loadTrigger.switchMap {
+        liveData(Dispatchers.IO) {
+            try {
+
+                _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.LOADING_FORECAST)
+                _msg.postValue("Loading...")
+
+                if (TimeUtilsObj.isFirstHalfOfTheDay()){
+                    repository.getLuasForecastMarlborough().collect {
+                        if (it.suceeded){
+                            _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.FORECAST_LOADED)
+                            _msg.postValue(it.stopInfoMsg)
+                            emit(it)
+                        } else {
+                            _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.NO_FORECAST)
+                            _msg.postValue(it.stopInfoMsg)
+                        }
+                    }
+                } else {
+                    repository.getLuasForecastStillorgan().collect {
+                        if (it.suceeded){
+                            _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.FORECAST_LOADED)
+                            _msg.postValue(it.stopInfoMsg)
+                            emit(it)
+                        } else {
+                            _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.NO_FORECAST)
+                            _msg.postValue(it.stopInfoMsg)
+                        }
+                    }
                 }
-            } else {
-                repository.getLuasForecastStillorgan().collect {
-                    emit(it)
-                }
+
+
+            } catch (e : Exception){
+                _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.NO_FORECAST)
+                _msg.postValue("Error reaching LUAS Forecast!")
+                emit(SealedResources.Failure(e))
             }
-
-
-        } catch (e : Exception){
-            Log.e("TestGabi", e.toString())
         }
+    }
+
+    fun refresh(){
+        loadTrigger.value = Unit
+    }
+
+    fun showNoInternetError() {
+        _forecastVisibilityCase.postValue(ForecastResulVisibilityCase.NO_FORECAST)
+        _msg.postValue("No internet connection! \n Please check your internet connectivity and refresh the app")
     }
 
 }

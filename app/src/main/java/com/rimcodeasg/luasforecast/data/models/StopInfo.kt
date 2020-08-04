@@ -17,5 +17,4 @@ class StopInfo(
     val msg : String,
     @Element
     val diretions : List<Direction>
-) {
-}
+)

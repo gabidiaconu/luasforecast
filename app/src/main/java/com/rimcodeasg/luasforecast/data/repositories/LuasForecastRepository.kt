@@ -8,26 +8,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
-@Suppress("BlockingMethodInNonBlockingContext")
 class LuasForecastRepository (
     private val retrofitSource: RetrofitSource
 ){
 
     fun getLuasForecastMarlborough() : Flow<SealedResources<StopInfo>> {
         return flow {
-            val body = retrofitSource.retrofitRequests.getLuasForecast(RetrofitSource.MARL_FORECAST_URL)
-
+            val body =
+                retrofitSource.retrofitRequests.getLuasForecast(RetrofitSource.MARL_FORECAST_URL)
             emit(SealedResources.Success<StopInfo>(body))
         }.flowOn(Dispatchers.IO)
     }
 
     fun getLuasForecastStillorgan() : Flow<SealedResources<StopInfo>>{
         return flow {
-            val body = retrofitSource.retrofitRequests.getLuasForecast(RetrofitSource.STILL_FORECAST_URL)
+            val body =
+                retrofitSource.retrofitRequests.getLuasForecast(RetrofitSource.STILL_FORECAST_URL)
             emit(SealedResources.Success<StopInfo>(body))
-        }
+        }.flowOn(Dispatchers.IO)
     }
-
-
 
 }

@@ -10,4 +10,4 @@ class Tram(
     val destination : String,
     @Attribute(name = "dueMins")
     val dueMins : String
-) : Serializable {}
+) : Serializable

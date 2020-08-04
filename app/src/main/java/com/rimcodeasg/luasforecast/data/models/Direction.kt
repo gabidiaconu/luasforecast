@@ -10,4 +10,4 @@ class Direction(
     val directionName : String,
     @Element
     val listOfTrams : List<Tram>
-) {}
+)
