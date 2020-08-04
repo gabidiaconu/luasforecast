@@ -23,34 +23,41 @@ class DataBindingHelper {
         }
 
         @JvmStatic
-        @BindingAdapter(value = ["setVisibilityState"])
-        fun LottieAnimationView.setVisibilityState(minutesDifference : String){
-            if (minutesDifference.toDouble() >= 1 ){
-                when(this.id){
-                    R.id.late_lottie_animation_view ->
-                        this.visibility = View.INVISIBLE
-                    R.id.ok_lottie_animation_view -> {
-                        this.visibility = View.VISIBLE
-                        this.playAnimation()}
-                 }
-            } else {
-                when(this.id){
-                    R.id.late_lottie_animation_view ->{
-                        this.visibility = View.VISIBLE
-                        this.playAnimation()}
-                    R.id.ok_lottie_animation_view ->
-                        this.visibility = View.INVISIBLE
+        @BindingAdapter(value = ["setLateAnimationVisibilityState"])
+        fun LottieAnimationView.setLateAnimationVisibilityState(minutesDifference : Double?){
+            if (minutesDifference != null) {
+                if (minutesDifference >= 1.0) {
+                    this.visibility = View.INVISIBLE
+                } else {
+                    this.visibility = View.VISIBLE
+                    this.playAnimation()
+                }
+            }
+        }
+
+
+        @JvmStatic
+        @BindingAdapter(value = ["setInTimeAnimationVisibilityState"])
+        fun LottieAnimationView.setInTimeAnimationVisibilityState(minutesDifference : Double?){
+            if (minutesDifference != null) {
+                if (minutesDifference >= 1.0) {
+                    this.visibility = View.VISIBLE
+                    this.playAnimation()
+                } else {
+                    this.visibility = View.INVISIBLE
                 }
             }
         }
 
         @JvmStatic
         @BindingAdapter(value = ["setMessage"])
-        fun TextView.setMessage(minutesDifference: String){
-            if (minutesDifference.toDouble() >= 1 ){
-                this.text = AVAILABLE_TRAM
-            } else {
-                this.text = UNAVAILABLE_TRAM
+        fun TextView.setMessage(minutesDifference: Double?){
+            if (minutesDifference != null) {
+                if (minutesDifference >= 1) {
+                    this.text = AVAILABLE_TRAM
+                } else {
+                    this.text = UNAVAILABLE_TRAM
+                }
             }
         }
 

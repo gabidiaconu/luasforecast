@@ -84,9 +84,6 @@ class TramDetailsFragment : Fragment(), KodeinAware {
 
         viewModel.selectedTram = arguments?.getSerializable(TRAM_ENTITY) as Tram
 
-        binding.lateLottieAnimationView.playAnimation()
-        binding.okLottieAnimationView.playAnimation()
-
         /*
         * Opening location with google maps
         * so the user can see how far he actually is

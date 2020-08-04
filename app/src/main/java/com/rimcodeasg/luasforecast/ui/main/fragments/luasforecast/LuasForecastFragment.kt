@@ -13,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.rimcodeasg.luasforecast.R
 import com.rimcodeasg.luasforecast.common.SealedResources
 import com.rimcodeasg.luasforecast.common.TimeUtilsObj
@@ -56,9 +58,9 @@ class LuasForecastFragment : Fragment() , KodeinAware, IRecyclerViewItemClickLis
                     is SealedResources.Success -> {
                         val currentStopInfo = result.data
                         if (TimeUtilsObj.isFirstHalfOfTheDay()){
-                            tramListAdapter.submitList(currentStopInfo.diretions[0].listOfTrams)
-                        } else {
                             tramListAdapter.submitList(currentStopInfo.diretions[1].listOfTrams)
+                        } else {
+                            tramListAdapter.submitList(currentStopInfo.diretions[0].listOfTrams)
                         }
                     }
                     is SealedResources.Failure -> {
@@ -89,11 +91,20 @@ class LuasForecastFragment : Fragment() , KodeinAware, IRecyclerViewItemClickLis
             lifecycleOwner = this@LuasForecastFragment
         }
 
+
+        binding.tramsRecyclerView.apply {
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            layoutManager = object : LinearLayoutManager(context){
+                override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
+                    lp?.width = width
+                    return true
+                }
+            }
+        }
+
         binding.luasForecastViewModel = luasForecastViewModel
 
         binding.tramListAdapter = tramListAdapter
-
-        binding.tramsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         binding.refreshButton.setOnClickListener {
             luasForecastViewModel.refresh()
@@ -103,12 +114,13 @@ class LuasForecastFragment : Fragment() , KodeinAware, IRecyclerViewItemClickLis
     }
 
     override fun onRecyclerViewItemClicked(tram: Tram) {
-        if (tram.dueMins.isNotEmpty() || tram.dueMins.isNotBlank()) {
+        if (tram.dueMins.isNotEmpty() || tram.dueMins.isNotBlank() || !tram.dueMins.equals("DUE")) {
             (activity as AppCompatActivity).replaceFragment(TramDetailsFragment.newInstance(tram))
         } else {
-            Toast.makeText(context,"Tram not available!", Toast.LENGTH_LONG).show()
+            Toast.makeText(context,getString(R.string.warn_tram_not_available), Toast.LENGTH_LONG).show()
         }
     }
+
 
 
     private fun isOnline(context: Context): Boolean {
@@ -134,4 +146,5 @@ class LuasForecastFragment : Fragment() , KodeinAware, IRecyclerViewItemClickLis
         }
         return false
     }
+
 }

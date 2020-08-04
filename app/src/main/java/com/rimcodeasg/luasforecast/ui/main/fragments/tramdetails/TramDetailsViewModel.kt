@@ -1,6 +1,8 @@
 package com.rimcodeasg.luasforecast.ui.main.fragments.tramdetails
 
 import android.location.Location
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
@@ -9,35 +11,41 @@ import com.rimcodeasg.luasforecast.data.models.Tram
 import com.rimcodeasg.luasforecast.ui.main.fragments.tramdetails.TramDetailsFragment.Companion.marlboroughStationLatLng
 import com.rimcodeasg.luasforecast.ui.main.fragments.tramdetails.TramDetailsFragment.Companion.stillorganStationLatLng
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 class TramDetailsViewModel : ViewModel() {
 
     lateinit var selectedTram : Tram
 
-    private var _distanceToTramStation : String = "0.0"
-    val distanceToTramStation : String
-        get() = BigDecimal.valueOf(_distanceToTramStation.toDouble()).setScale(2, RoundingMode.HALF_UP).toPlainString()
 
-    private var _differenceInMinutes : Double = -1.0
-    val differenceInMinutes : String
-        get() = _differenceInMinutes.toString()
+    private val _distanceToTramStation = MutableLiveData<Double>()
+    val distanceToTramStation : LiveData<Double>
+        get() = _distanceToTramStation
+
+    private var _differenceInMinutes = MutableLiveData<Double>()
+    val differenceInMinutes : LiveData<Double>
+        get() = _differenceInMinutes
 
     fun calculateDistanceBetweenCurrentLocationAndTramStation(location: Location){
 
         val currentLatLng = LatLng(location.latitude, location.longitude)
 
         if (TimeUtilsObj.isFirstHalfOfTheDay()){
-            _distanceToTramStation = SphericalUtil.computeDistanceBetween(currentLatLng, marlboroughStationLatLng).toString()
-            _differenceInMinutes = calculateDifferenceInMinutesFromCurrentLocationToStation()
+            val sphericalDistanceBetweenCurrentLatLngAndStation = BigDecimal.valueOf(SphericalUtil.computeDistanceBetween(currentLatLng, marlboroughStationLatLng))
+                .setScale(2, BigDecimal.ROUND_HALF_UP).toDouble()
+            _distanceToTramStation.postValue(sphericalDistanceBetweenCurrentLatLngAndStation)
+            _differenceInMinutes.postValue(calculateDifferenceInMinutesFromCurrentLocationToStation(sphericalDistanceBetweenCurrentLatLngAndStation))
         } else {
-            _distanceToTramStation = SphericalUtil.computeDistanceBetween(currentLatLng, stillorganStationLatLng).toString()
+            val sphericalDistanceBetweenCurrentLatLngAndStation = BigDecimal.valueOf(SphericalUtil.computeDistanceBetween(currentLatLng, stillorganStationLatLng))
+                .setScale(2, BigDecimal.ROUND_HALF_UP).toDouble()
+            _distanceToTramStation.postValue(sphericalDistanceBetweenCurrentLatLngAndStation)
+            _differenceInMinutes.postValue(calculateDifferenceInMinutesFromCurrentLocationToStation(sphericalDistanceBetweenCurrentLatLngAndStation))
         }
     }
 
-    private fun calculateDifferenceInMinutesFromCurrentLocationToStation() : Double{
-        val distance = _distanceToTramStation.toDouble()
-        val minutesToStation = BigDecimal.valueOf(distance / 1.3).setScale(2, RoundingMode.HALF_UP).toDouble()
+    private fun calculateDifferenceInMinutesFromCurrentLocationToStation(sphericalDistanceBetweenCurrentLatLngAndStation : Double) : Double{
+        val minutesToStation = BigDecimal.valueOf(sphericalDistanceBetweenCurrentLatLngAndStation / 1.3)
+            .setScale(2, BigDecimal.ROUND_HALF_UP)
+            .toDouble()
         return selectedTram.dueMins.toDouble() - minutesToStation
     }
 

@@ -21,6 +21,8 @@
     <string name="warn_some_permissions_not_granted">Some permissions are not granted ask again</string>
     <string name="info_location_permissions_granted">location services permission granted</string>
     <string name="info_permission_callback_called">Permission callback called-------</string>
+    <string name="warn_tram_not_available">Tram not available!</string>
+    <string name="info_double_press_back_to_exit">Press back again to exit</string>
 
 
 </resources>

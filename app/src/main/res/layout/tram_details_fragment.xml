@@ -38,13 +38,13 @@
             app:lottie_fileName="tram_not_found.json"
             app:lottie_repeatMode="restart"
             app:lottie_repeatCount="10"
-            app:setVisibilityState="@{viewModel.differenceInMinutes}"
+            app:setLateAnimationVisibilityState="@{viewModel.differenceInMinutes}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/message_text_view" />
 
         <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/ok_lottie_animation_view"
+            android:id="@+id/in_time_lottie_animation_view"
             android:layout_width="@dimen/_250sdp"
             android:layout_height="@dimen/_250sdp"
             android:layout_marginTop="@dimen/_20sdp"
@@ -54,7 +54,8 @@
             app:lottie_repeatCount="25"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:setInTimeAnimationVisibilityState="@{viewModel.differenceInMinutes}"/>
 
         <TextView
             android:id="@+id/tram_leaving_time_label"
@@ -100,7 +101,7 @@
             android:id="@+id/distance_to_station_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.distanceToTramStation}"
+            android:text="@{viewModel.distanceToTramStation.toString()}"
             android:textColor="@color/colorPrimary"
             android:textStyle="bold"
             android:textSize="@dimen/_12ssp"
